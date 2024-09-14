@@ -1,0 +1,183 @@
+/* Home.css */
+:root {
+    --primary-color: #4a4a4a;
+    --primary-light: #7a7a7a;
+    --primary-dark: #2a2a2a;
+    --secondary-color: #f4f4f4;
+    --text-color: #333333;
+    --text-light: #ffffff;
+    --border-color: #e0e0e0;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+  }
+  
+  body {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .task-manager {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+  
+  .container {
+    background-color: var(--text-light);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card {
+    padding: 1.5rem;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+  }
+  
+  .title {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin: 0;
+  }
+  
+  .logout-btn {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .logout-btn:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .search-add {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .search-container {
+    position: relative;
+    width: 40%; /* Shortened search bar width */
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 0.5rem 2rem 0.5rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  
+  .search-icon {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+  }
+  
+  .add-btn {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .add-btn:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .filter-buttons {
+    margin-bottom: 1rem;
+  }
+  
+  .filter-btn {
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    padding: 0.4rem 0.8rem;
+    margin-right: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .filter-btn.active {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+  }
+  
+  .task-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .task-table th,
+  .task-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .task-table th {
+    background-color: var(--primary-light);
+    color: var(--text-light);
+    font-weight: bold;
+  }
+  
+  .task-table th:first-child {
+    width: 50%;
+  }
+  
+  .status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+  
+  .status-badge.complete {
+    background-color: var(--success-color);
+    color: var(--text-light);
+  }
+  
+  .status-badge.pending {
+    background-color: var(--warning-color);
+    color: var(--text-color);
+  }
+  
+  .action-btn,
+  .detail-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    padding: 0.25rem;
+    font-size: 1rem;
+    color: var(--primary-color);
+  }
+  
+  .detail-btn {
+    background-color: var(--secondary-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
