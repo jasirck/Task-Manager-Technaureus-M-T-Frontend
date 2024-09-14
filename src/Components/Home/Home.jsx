@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../Api';
+import Add from '../Add/Add'; // Import Add modal component
+import Edit from '../Edit/Edit'; // Import Edit modal component
+import Details from '../Details/Details'; // Import Details modal component
 import './Home.css';
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [search, setSearch] = useState('');
-  const [newTaskTitle, setNewTaskTitle] = useState('');
   const [filter, setFilter] = useState('all');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Add modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Edit modal state
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false); // Details modal state
+  const [taskToEdit, setTaskToEdit] = useState(null); // Task data for editing
+  const [taskDetails, setTaskDetails] = useState(null); // Task data for details
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,18 +31,32 @@ export default function Home() {
   };
 
   const handleSearch = (e) => setSearch(e.target.value);
-  
-  const handleAddTask = async () => {
+
+  const handleAddTask = async ({ title, description }) => {
     try {
-      await axios.post('tasks/', { title: newTaskTitle, status: 'Pending' });
-      setNewTaskTitle('');
+      await axios.post('tasks/', { title, description });
+      setIsAddModalOpen(false); // Close modal after adding task
       fetchTasks();
     } catch (error) {
       console.error('Failed to add task:', error);
     }
   };
 
-  const handleEditTask = (taskId) => navigate(`/edit-task/${taskId}`);
+  const handleEditTask = async (taskId, updatedTask) => {
+    try {
+      await axios.put(`tasks/${taskId}/`, updatedTask);
+      setIsEditModalOpen(false); // Close modal after editing task
+      setTaskToEdit(null); // Clear the task to edit
+      fetchTasks();
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  };
+
+  const handleEditModalOpen = (task) => {
+    setTaskToEdit(task);
+    setIsEditModalOpen(true);
+  };
 
   const handleDeleteTask = async (taskId) => {
     try {
@@ -46,17 +67,20 @@ export default function Home() {
     }
   };
 
-  const handleViewDetails = (taskId) => {
-    // Implement the logic to view task details
-    console.log(`View details for task ${taskId}`);
-    // You might want to navigate to a detail page or open a modal
-    // navigate(`/task-details/${taskId}`);
+  const handleViewDetails = (task) => {
+    setTaskDetails(task);
+    setIsDetailsModalOpen(true);
   };
 
-  const filteredTasks = tasks.filter(task =>
-    task.title.toLowerCase().includes(search.toLowerCase())
-  );
-  
+  const handleCheckboxChange = async (taskId, currentStatus) => {
+    const newStatus = !currentStatus; // Toggle the status
+    try {
+      await axios.patch(`tasks/${taskId}/`, { status: newStatus });
+      fetchTasks();
+    } catch (error) {
+      console.error('Failed to update task status:', error);
+    }
+  };
 
   const handleLogout = () => navigate('/login');
 
@@ -82,56 +106,77 @@ export default function Home() {
                 />
                 <span className="search-icon">🔍</span>
               </div>
-              <button onClick={handleAddTask} className="add-btn">
+              <button onClick={() => setIsAddModalOpen(true)} className="add-btn">
                 Add Task
               </button>
             </div>
             <div className="filter-buttons">
-              {['all', 'Complete', 'Pending'].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setFilter(status)}
-                  className={`filter-btn ${filter === status ? 'active' : ''}`}
-                >
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </button>
-              ))}
+              <button
+                onClick={() => setFilter('all')}
+                className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setFilter('Complete')}
+                className={`filter-btn ${filter === 'Complete' ? 'active' : ''}`}
+              >
+                Complete
+              </button>
+              <button
+                onClick={() => setFilter('Pending')}
+                className={`filter-btn ${filter === 'Pending' ? 'active' : ''}`}
+              >
+                Pending
+              </button>
             </div>
             <table className="task-table">
               <thead>
                 <tr>
+                  <th></th> {/* Checkbox column */}
                   <th>Title</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredTasks.map((task) => (
+                {tasks
+                  .filter((task) => {
+                    if (filter === 'all') {
+                      return true;
+                    } else if (filter === 'Complete') {
+                      return task.status === true;
+                    } else if (filter === 'Pending') {
+                      return task.status === false;
+                    }
+                    return true;
+                  })
+                  .filter((task) =>
+                    task.title.toLowerCase().includes(search.toLowerCase())
+                  ).map((task) => (
                   <tr key={task.id}>
+                    <td className="checkbox-cell">
+                      <input
+                        type="checkbox"
+                        className="checkbox"
+                        checked={task.status}
+                        onChange={() => handleCheckboxChange(task.id, task.status)}
+                      />
+                    </td>
                     <td>{task.title}</td>
                     <td>
-  <span className={`status-badge ${String(task.status).toLowerCase()}`}>
-    {String(task.status)}
-  </span>
-</td>
-
+                      <span className={`status-badge ${task.status ? 'complete' : 'pending'}`}>
+                        {task.status ? 'Complete' : 'Pending'}
+                      </span>
+                    </td>
                     <td>
-                      <button
-                        onClick={() => handleViewDetails(task.id)}
-                        className="detail-btn"
-                      >
+                      <button onClick={() => handleViewDetails(task)} className="detail-btn">
                         Details
                       </button>
-                      <button
-                        onClick={() => handleEditTask(task.id)}
-                        className="action-btn"
-                      >
+                      <button onClick={() => handleEditModalOpen(task)} className="action-btn">
                         ✏️
                       </button>
-                      <button
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="action-btn"
-                      >
+                      <button onClick={() => handleDeleteTask(task.id)} className="action-btn">
                         🗑️
                       </button>
                     </td>
@@ -142,6 +187,27 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <Add
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSubmit={handleAddTask}
+      />
+      {taskToEdit && (
+        <Edit
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSubmit={(updatedTask) => handleEditTask(taskToEdit.id, updatedTask)}
+          initialTitle={taskToEdit.title}
+          initialDescription={taskToEdit.description}
+        />
+      )}
+      {taskDetails && (
+        <Details
+          isOpen={isDetailsModalOpen}
+          onClose={() => setIsDetailsModalOpen(false)}
+          task={taskDetails}
+        />
+      )}
     </div>
   );
 }
