@@ -19,7 +19,7 @@ function Register() {
       try {
         await axios.post('register/', { username, password });
         alert('Registration successful!');
-        navigate('/login'); // Redirect to login page after successful registration
+        navigate('/login'); 
       } catch (error) {
         console.error('Registration failed:', error.response ? error.response.data : error.message);
         setError('Registration failed. Please try again.');

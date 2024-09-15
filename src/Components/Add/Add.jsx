@@ -1,29 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from '../Api'; // Ensure axios is imported here
 import './Add.css';
+import { useSelector } from "react-redux";
 
-export default function Add({ isOpen, onClose, onSubmit }) {
-  const [title, setTitle] = React.useState('');
-  const [description, setDescription] = React.useState('');
-
-  const handleSubmit = (e) => {
+export default function Add({ isOpen, onClose, fetchTasks }) {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const { accessToken } = useSelector((state) => state.auth);
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({ title, description });
-    setTitle('');
-    setDescription('');
-    onClose(); // Call onClose correctly
+    try {
+      // Call the API to add a new task
+      await axios.post('tasks/', { title, description },{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      setTitle(''); // Reset the title field
+      setDescription(''); // Reset the description field
+      fetchTasks();
+      onClose(); // Close the modal
+    } catch (error) {
+      console.error('Failed to add task:', error);
+    }
   };
 
-  if (!isOpen) return null; // Don't render the modal if it's closed
+  if (!isOpen) return null; // Do not render modal if it's not open
 
   return (
-    <div className="modal-overlay" onClick={() => onClose(false)}>
+    <div className="modal-overlay" onClick={() => onClose()}>
       <div 
         className="modal" 
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
+        onClick={(e) => e.stopPropagation()} // Prevent modal close on inner content click
       >
         <div className="modal-header">
           <h2>Add New Task</h2>
-          <button onClick={() => onClose(false)} className="close-btn">
+          <button onClick={onClose} className="close-btn">
             &times;
           </button>
         </div>
@@ -44,7 +56,6 @@ export default function Add({ isOpen, onClose, onSubmit }) {
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              required
             />
           </div>
           <button type="submit" className="submit-btn">

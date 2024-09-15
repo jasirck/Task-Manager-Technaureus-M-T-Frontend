@@ -5,6 +5,8 @@ import Add from '../Add/Add'; // Import Add modal component
 import Edit from '../Edit/Edit'; // Import Edit modal component
 import Details from '../Details/Details'; // Import Details modal component
 import './Home.css';
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from '../toolkit/Slice';
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
@@ -15,43 +17,63 @@ export default function Home() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false); // Details modal state
   const [taskToEdit, setTaskToEdit] = useState(null); // Task data for editing
   const [taskDetails, setTaskDetails] = useState(null); // Task data for details
+  const { accessToken, name } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    fetchTasks();
-  }, [filter]);
+    if (!accessToken) {
+      console.log('No access token, redirecting to login.');
+      navigate('/login');
+    } else {
+      console.log(accessToken);
+      
+      fetchTasks();
+    }
+  }, [filter, search, accessToken, navigate]);
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get('tasks/', { params: { status: filter } });
+      let query = `tasks/?`;
+      let params = [];
+  
+      // Append status filter if not 'all'
+      if (filter !== 'all') {
+        params.push(`status=${filter === 'Complete'}`);
+      }
+  
+      // Append search query if there's any search input
+      if (search) {
+        params.push(`search=${search}`);
+      }
+  
+      // Join parameters with '&'
+      if (params.length > 0) {
+        query += params.join('&');
+      }
+  
+      console.log(query, 'query');
+      
+      const response = await axios.get(query, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       setTasks(response.data);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
+      dispatch(logout());
+    navigate('/login');
+
     }
   };
+  
 
-  const handleSearch = (e) => setSearch(e.target.value);
-
-  const handleAddTask = async ({ title, description }) => {
-    try {
-      await axios.post('tasks/', { title, description });
-      setIsAddModalOpen(false); // Close modal after adding task
-      fetchTasks();
-    } catch (error) {
-      console.error('Failed to add task:', error);
-    }
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+    fetchTasks();  
   };
 
-  const handleEditTask = async (taskId, updatedTask) => {
-    try {
-      await axios.put(`tasks/${taskId}/`, updatedTask);
-      setIsEditModalOpen(false); // Close modal after editing task
-      setTaskToEdit(null); // Clear the task to edit
-      fetchTasks();
-    } catch (error) {
-      console.error('Failed to update task:', error);
-    }
-  };
 
   const handleEditModalOpen = (task) => {
     setTaskToEdit(task);
@@ -60,7 +82,11 @@ export default function Home() {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      await axios.delete(`tasks/${taskId}/`);
+      await axios.delete(`tasks/${taskId}/`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       fetchTasks();
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -75,21 +101,28 @@ export default function Home() {
   const handleCheckboxChange = async (taskId, currentStatus) => {
     const newStatus = !currentStatus; // Toggle the status
     try {
-      await axios.patch(`tasks/${taskId}/`, { status: newStatus });
+      await axios.patch(`tasks/${taskId}/`, { status: newStatus }, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       fetchTasks();
     } catch (error) {
       console.error('Failed to update task status:', error);
     }
   };
 
-  const handleLogout = () => navigate('/login');
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+  };
 
   return (
     <div className="task-manager">
       <div className="container">
         <div className="card">
           <div className="header">
-            <h1 className="title">Task Manager</h1>
+            <h1 className="title">Hello {name}</h1>
             <button onClick={handleLogout} className="logout-btn">
               Logout
             </button>
@@ -151,37 +184,38 @@ export default function Home() {
                     }
                     return true;
                   })
-                  .filter((task) =>
-                    task.title.toLowerCase().includes(search.toLowerCase())
-                  ).map((task) => (
-                  <tr key={task.id}>
-                    <td className="checkbox-cell">
-                      <input
-                        type="checkbox"
-                        className="checkbox"
-                        checked={task.status}
-                        onChange={() => handleCheckboxChange(task.id, task.status)}
-                      />
-                    </td>
-                    <td>{task.title}</td>
-                    <td>
-                      <span className={`status-badge ${task.status ? 'complete' : 'pending'}`}>
-                        {task.status ? 'Complete' : 'Pending'}
-                      </span>
-                    </td>
-                    <td>
-                      <button onClick={() => handleViewDetails(task)} className="detail-btn">
-                        Details
-                      </button>
-                      <button onClick={() => handleEditModalOpen(task)} className="action-btn">
-                        ✏️
-                      </button>
-                      <button onClick={() => handleDeleteTask(task.id)} className="action-btn">
-                        🗑️
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                  // .filter((task) =>
+                  //   task.title.toLowerCase().includes(search.toLowerCase())
+                  // )
+                  .map((task) => (
+                    <tr key={task.id}>
+                      <td className="checkbox-cell">
+                        <input
+                          type="checkbox"
+                          className="checkbox"
+                          checked={task.status}
+                          onChange={() => handleCheckboxChange(task.id, task.status)}
+                        />
+                      </td>
+                      <td>{task.title}</td>
+                      <td>
+                        <span className={`status-badge ${task.status ? 'complete' : 'pending'}`}>
+                          {task.status ? 'Complete' : 'Pending'}
+                        </span>
+                      </td>
+                      <td>
+                        <button onClick={() => handleViewDetails(task)} className="detail-btn">
+                          Details
+                        </button>
+                        <button onClick={() => handleEditModalOpen(task)} className="action-btn">
+                          ✏️
+                        </button>
+                        <button onClick={() => handleDeleteTask(task.id)} className="action-btn">
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -190,17 +224,17 @@ export default function Home() {
       <Add
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSubmit={handleAddTask}
+        fetchTasks={fetchTasks}
       />
       {taskToEdit && (
-        <Edit
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onSubmit={(updatedTask) => handleEditTask(taskToEdit.id, updatedTask)}
-          initialTitle={taskToEdit.title}
-          initialDescription={taskToEdit.description}
-        />
-      )}
+  <Edit
+    isOpen={isEditModalOpen}
+    onClose={() => setIsEditModalOpen(false)}
+    taskId={taskToEdit.id}
+    fetchTasks={fetchTasks}
+  />
+)}
+
       {taskDetails && (
         <Details
           isOpen={isDetailsModalOpen}

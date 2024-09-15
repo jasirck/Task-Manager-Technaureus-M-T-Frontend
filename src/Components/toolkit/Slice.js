@@ -12,9 +12,12 @@ const usermanage = createSlice({
     name: 'usermanage',
     initialState,
   reducers: {
-    setAccessToken: (state, action) => {
+    login: (state, action) => {
       state.accessToken = action.payload;
       localStorage.setItem('accessToken', action.payload);
+    },
+    setName:(state,action)=>{
+        state.name = action.payload
     },
     logout: (state) => {
       state.accessToken = null;
@@ -26,6 +29,6 @@ const usermanage = createSlice({
   },
 });
 
-export const { setAccessToken, logout } = usermanage.actions;
+export const { login, logout,setName } = usermanage.actions;
 
 export default usermanage.reducer;

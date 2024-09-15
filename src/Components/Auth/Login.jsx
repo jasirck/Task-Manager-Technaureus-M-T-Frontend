@@ -1,53 +1,30 @@
-// import React from 'react';
-// import './Auth.css';
-// import { useNavigate } from "react-router-dom";
-// import { useDispatch, useSelector } from 'react-redux';
-// import { login } from  '../toolkit/Slice'; 
-
-
-// function Login  () {
-
-// const navigate = useNavigate(); 
-//   return (
-//     <div className="auth-container">
-//       <h2>Login</h2>
-//       <form className="auth-form">
-//         <label>Username</label>
-//         <input type="text" placeholder="Enter your username" />
-        
-//         <label>Password</label>
-//         <input type="password" placeholder="Enter your password" />
-        
-//         <button type="submit">Login</button>
-//       </form>
-//       <p>Don't have an account? <a onClick={()=>navigate("/register")}>Register</a></p>
-//     </div>
-//   );
-// };
-
-// export default Login;
-
-
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Auth.css';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setAccessToken } from '../toolkit/Slice'; 
+import { useSelector,useDispatch } from 'react-redux';
+import { login,setName } from '../toolkit/Slice'; 
 import axios from '../Api';
 
 function Login() {
   const [User, setUser] = useState({ username: '', password: '' });
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { accessToken } = useSelector((state) => state.auth);
+
+
+  useEffect(() => {
+    if (accessToken) {
+      navigate('/'); 
+    }
+  }, [accessToken, navigate]);
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('login/', User);
-      dispatch(setAccessToken(response.data.access));
-      console.log(response);
-      
+      dispatch(login(response.data.access));
+      dispatch(setName(User.username));
       navigate('/'); 
     } catch (error) {
       console.error('Login failed:', error.response ? error.response.data : error.message);
