@@ -34,11 +34,12 @@ export default function Home() {
     }
   }, [filter, search, accessToken, navigate]);
 
+  // Initial API call, subsequent API calls after refreshing, and search filtering.
   const fetchTasks = async () => {
     try {
       let query = `tasks/?`;
       let params = [];
-  
+
       if (filter !== 'all') {
         params.push(`status=${filter === 'Complete'}`);
       }
@@ -67,7 +68,7 @@ export default function Home() {
     }
   };
   
-
+// search api call
   const handleSearch = (e) => {
     setSearch(e.target.value);
     fetchTasks();  
@@ -79,8 +80,8 @@ export default function Home() {
     setIsEditModalOpen(true);
   };
 
-  const handleDeleteTask = async (taskId) => {
-    // Show confirmation dialog
+  // API for deletion
+    const handleDelete = async (taskId) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
@@ -92,17 +93,14 @@ export default function Home() {
   
     if (result.isConfirmed) {
       try {
-        // Perform the delete operation
         await axios.delete(`tasks/${taskId}/`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
   
-        // Refresh the task list or perform other actions
         fetchTasks();
   
-        // Show success message
         Swal.fire({
           title: 'Deleted!',
           text: 'Task has been deleted.',
@@ -110,26 +108,16 @@ export default function Home() {
           confirmButtonText: 'OK',
         });
       } catch (error) {
-        // Show error message
-        Swal.fire({
-          title: 'Error!',
-          text: 'Failed to delete task. Please try again.',
-          icon: 'error',
-          confirmButtonText: 'OK',
-        });
-  
-        // Log error for debugging
         console.error('Failed to delete task:', error);
       }
     }
   };
-
-  const handleViewDetails = (task) => {
+  const handleDetails = (task) => {
     setTaskDetails(task);
     setIsDetailsModalOpen(true);
   };
 
-  const handleCheckboxChange = async (taskId, currentStatus) => {
+  const handleCheckbox = async (taskId, currentStatus) => {
     const newStatus = !currentStatus; 
     try {
       await axios.patch(`tasks/${taskId}/`, { status: newStatus }, {
@@ -175,6 +163,7 @@ export default function Home() {
               </button>
             </div>
             <div className="filter-buttons">
+            {/* Filter button options */}
               <button
                 onClick={() => setFilter('all')}
                 className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -205,6 +194,7 @@ export default function Home() {
               </thead>
               <tbody>
                 {tasks
+                // Filtering based buttons
                   .filter((task) => {
                     if (filter === 'all') {
                       return true;
@@ -222,7 +212,7 @@ export default function Home() {
                           type="checkbox"
                           className="checkbox"
                           checked={task.status}
-                          onChange={() => handleCheckboxChange(task.id, task.status)}
+                          onChange={() => handleCheckbox(task.id, task.status)}
                         />
                       </td>
                       <td>{task.title}</td>
@@ -232,13 +222,13 @@ export default function Home() {
                         </span>
                       </td>
                       <td>
-                        <button onClick={() => handleViewDetails(task)} className="detail-btn">
+                        <button onClick={() => handleDetails(task)} className="detail-btn">
                           Details
                         </button>
                         <button onClick={() => handleEditModalOpen(task)} className="action-btn">
                           ✏️
                         </button>
-                        <button onClick={() => handleDeleteTask(task.id)} className="action-btn">
+                        <button onClick={() => handleDelete(task.id)} className="action-btn">
                           🗑️
                         </button>
                       </td>
@@ -249,11 +239,13 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {/* Add Modal  */}
       <Add
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         fetchTasks={fetchTasks}
       />
+      {/* Edit Modal */}
       {taskToEdit && (
   <Edit
     isOpen={isEditModalOpen}
@@ -262,7 +254,8 @@ export default function Home() {
     fetchTasks={fetchTasks}
   />
 )}
-
+       
+       {/* Details Modal */}
       {taskDetails && (
         <Details
           isOpen={isDetailsModalOpen}

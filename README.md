@@ -24,7 +24,7 @@ This is the frontend part of the Task Manager application built with React. It i
    - Toggle a task’s completion status.
 
 6. **Task Detail View**
-   - View full details of a task in a new page or modal.
+   - View full details of a task in a new  modal.
 
 7. **Registration**
    - User registration with username, email, password, and confirmation password.
@@ -38,6 +38,8 @@ This is the frontend part of the Task Manager application built with React. It i
 - **React Functional Components** with hooks for state management.
 - **Axios** for API calls.
 - **React Router** for navigation.
+- **Redux Toolkit** for state management.
+- **SweetAlert2** for alerts and notifications.
 - **CSS** for styling.
 - Basic error handling for API interactions.
 - Responsive and user-friendly UI.
