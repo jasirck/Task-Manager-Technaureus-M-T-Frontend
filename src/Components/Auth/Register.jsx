@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import './Auth.css';
 import { useNavigate } from 'react-router-dom';
 import axios from '../Api';
+import Swal from 'sweetalert2';
 
 function Register() {
+  const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -17,12 +19,24 @@ function Register() {
     } else {
       setError('');
       try {
-        await axios.post('register/', { username, password });
-        alert('Registration successful!');
-        navigate('/login'); 
+        await axios.post('register/', { email, username, password });
+        Swal.fire({
+          title: 'Success!',
+          text: 'Registration successful!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          navigate('/login');
+        });
       } catch (error) {
-        console.error('Registration failed:', error.response ? error.response.data : error.message);
-        setError('Registration failed. Please try again.');
+        const Message = error.response?.data?.email || error.response?.data?.username || error.response?.data?.detail || 'Registration failed. Please try again.';
+        setError(Message);
+        Swal.fire({
+          title: 'Error!',
+          text: Message,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       }
     }
   };
@@ -39,7 +53,15 @@ function Register() {
           onChange={(e) => setUsername(e.target.value)}
           required
         />
-        
+        <label>Email</label>
+        <input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
         <label>Password</label>
         <input
           type="password"
@@ -48,7 +70,7 @@ function Register() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        
+
         <label>Confirm Password</label>
         <input
           type="password"
@@ -57,14 +79,14 @@ function Register() {
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
         />
-        
+
         {error && <p className="error">{error}</p>}
-        
+
         <button type="submit">Register</button>
       </form>
       <p>Already have an account? <a onClick={() => navigate('/login')}>Login</a></p>
     </div>
   );
-};
+}
 
 export default Register;

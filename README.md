@@ -1,70 +1,73 @@
-# Getting Started with Create React App
+# Task Manager Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the frontend part of the Task Manager application built with React. It interfaces with a Django backend to manage tasks.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+1. **Task List Page**
+   - Display all tasks with filters for completed and pending tasks.
+   - Show task title, description, and status.
 
-### `npm start`
+2. **Create Task**
+   - Form to create a new task with title and description.
+   - Refreshes the task list on successful creation.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+3. **Edit Task**
+   - Ability to edit a task's title and description.
+   - Updates the task list on successful update.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+4. **Delete Task**
+   - Option to delete a task from the task list.
+   - Refreshes the task list on successful deletion.
 
-### `npm test`
+5. **Mark Task as Completed**
+   - Toggle a task’s completion status.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+6. **Task Detail View**
+   - View full details of a task in a new page or modal.
 
-### `npm run build`
+7. **Registration**
+   - User registration with username, email, password, and confirmation password.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+8. **Authentication**
+   - User login and token-based authentication.
+   - Stores authentication token in local storage.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Frontend Specifications
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **React Functional Components** with hooks for state management.
+- **Axios** for API calls.
+- **React Router** for navigation.
+- **CSS** for styling.
+- Basic error handling for API interactions.
+- Responsive and user-friendly UI.
 
-### `npm run eject`
+## Getting Started
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Prerequisites
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Make sure you have Node.js and npm (or yarn) installed on your machine.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Installation
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/jasirck/Task-Manager-Technaureus-M-T-Frontend.git
 
-## Learn More
+2. Navigate to the project directory:
+   ```bash
+   cd Task-Manager-Technaureus-M-T-Frontend
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+3. Install dependencies:
+   ```bash
+   npm install
+ 
+ Start
+   ```bash
+   npm install
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+pleace check  in this path:
+   /src/Components/Api.js
+   baseURL = in your django api 
+   eg:(http://127.0.0.1:8001/) /api/

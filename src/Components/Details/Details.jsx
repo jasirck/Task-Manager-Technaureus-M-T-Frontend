@@ -2,13 +2,13 @@ import React from 'react';
 import './Details.css';
 
 export default function Details({ isOpen, onClose, task }) {
-  if (!isOpen) return null; // Don't render the modal if it's closed
+  if (!isOpen) return null; 
 
   return (
     <div className="modal-overlay" onClick={() => onClose()}>
       <div 
         className="modal" 
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
+        onClick={(e) => e.stopPropagation()} 
       >
         <div className="modal-header">
           <h2>Task Details</h2>

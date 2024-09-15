@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../Api';
-import Add from '../Add/Add'; // Import Add modal component
-import Edit from '../Edit/Edit'; // Import Edit modal component
-import Details from '../Details/Details'; // Import Details modal component
+import Add from '../Add/Add'; 
+import Edit from '../Edit/Edit'; 
+import Details from '../Details/Details'; 
 import './Home.css';
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from '../toolkit/Slice';
+import Swal from 'sweetalert2';
+
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Add modal state
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Edit modal state
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false); // Details modal state
-  const [taskToEdit, setTaskToEdit] = useState(null); // Task data for editing
-  const [taskDetails, setTaskDetails] = useState(null); // Task data for details
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false); 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState(null); 
+  const [taskDetails, setTaskDetails] = useState(null); 
   const { accessToken, name } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -37,17 +39,14 @@ export default function Home() {
       let query = `tasks/?`;
       let params = [];
   
-      // Append status filter if not 'all'
       if (filter !== 'all') {
         params.push(`status=${filter === 'Complete'}`);
       }
   
-      // Append search query if there's any search input
       if (search) {
         params.push(`search=${search}`);
       }
   
-      // Join parameters with '&'
       if (params.length > 0) {
         query += params.join('&');
       }
@@ -81,15 +80,47 @@ export default function Home() {
   };
 
   const handleDeleteTask = async (taskId) => {
-    try {
-      await axios.delete(`tasks/${taskId}/`,{
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      fetchTasks();
-    } catch (error) {
-      console.error('Failed to delete task:', error);
+    // Show confirmation dialog
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'No, cancel!',
+    });
+  
+    if (result.isConfirmed) {
+      try {
+        // Perform the delete operation
+        await axios.delete(`tasks/${taskId}/`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+  
+        // Refresh the task list or perform other actions
+        fetchTasks();
+  
+        // Show success message
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Task has been deleted.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+      } catch (error) {
+        // Show error message
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to delete task. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+  
+        // Log error for debugging
+        console.error('Failed to delete task:', error);
+      }
     }
   };
 
@@ -99,7 +130,7 @@ export default function Home() {
   };
 
   const handleCheckboxChange = async (taskId, currentStatus) => {
-    const newStatus = !currentStatus; // Toggle the status
+    const newStatus = !currentStatus; 
     try {
       await axios.patch(`tasks/${taskId}/`, { status: newStatus }, {
         headers: {
@@ -166,7 +197,7 @@ export default function Home() {
             <table className="task-table">
               <thead>
                 <tr>
-                  <th></th> {/* Checkbox column */}
+                  <th></th> 
                   <th>Title</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -184,9 +215,6 @@ export default function Home() {
                     }
                     return true;
                   })
-                  // .filter((task) =>
-                  //   task.title.toLowerCase().includes(search.toLowerCase())
-                  // )
                   .map((task) => (
                     <tr key={task.id}>
                       <td className="checkbox-cell">
