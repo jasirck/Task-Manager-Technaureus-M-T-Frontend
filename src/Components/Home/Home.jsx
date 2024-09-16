@@ -22,7 +22,7 @@ export default function Home() {
   const { accessToken, name } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  let query = `tasks/?`;
   useEffect(() => {
     if (!accessToken) {
       console.log('No access token, redirecting to login.');
@@ -32,28 +32,21 @@ export default function Home() {
       
       fetchTasks();
     }
-  }, [filter, search, accessToken, navigate]);
+  }, [filter, search, accessToken, navigate,query]);
 
-  // Initial API call, subsequent API calls after refreshing, and search filtering.
   const fetchTasks = async () => {
     try {
-      let query = `tasks/?`;
-      let params = [];
-
+      query = `tasks/?`;
+  
       if (filter !== 'all') {
-        params.push(`status=${filter === 'Complete'}`);
+        query += `status=${filter === 'Complete'}&`;
       }
   
       if (search) {
-        params.push(`search=${search}`);
+        query += `search=${search}&`;
       }
-  
-      if (params.length > 0) {
-        query += params.join('&');
-      }
-  
       console.log(query, 'query');
-      
+  
       const response = await axios.get(query, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -62,11 +55,12 @@ export default function Home() {
       setTasks(response.data);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
+      
       dispatch(logout());
-    navigate('/login');
-
+      navigate('/login');
     }
   };
+  
   
 // search api call
   const handleSearch = (e) => {
